@@ -15,6 +15,9 @@ mongoose.connect("mongodb+srv://rohitsemriwal:rr1234@cluster0.fnizk.mongodb.net/
     const userRoutes = require('./routes/user_routes');
     app.use("/api/user", userRoutes);
 
+    const productRoutes = require('./routes/product_routes');
+    app.use("/api/product", productRoutes);
+
 });
 
 const PORT = 5000;
