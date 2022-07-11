@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static('uploads'));
 
 mongoose.connect("mongodb+srv://rohitsemriwal:rr1234@cluster0.fnizk.mongodb.net/ecommerce?retryWrites=true&w=majority").then(function() {
 
@@ -20,6 +21,9 @@ mongoose.connect("mongodb+srv://rohitsemriwal:rr1234@cluster0.fnizk.mongodb.net/
 
     const productRoutes = require('./routes/product_routes');
     app.use("/api/product", productRoutes);
+
+    const fileRoutes = require('./routes/file_routes');
+    app.use("/api/file", fileRoutes);
 
 });
 

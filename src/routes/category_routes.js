@@ -37,4 +37,18 @@ router.delete("/", async function(req, res) {
     res.json({ success: true, data: result });
 });
 
+router.put("/", async function(req, res) {
+    const categorydata = req.body;
+    const categoryid = categorydata.categoryid;
+
+    const result = await CategoryModel.findOneAndUpdate({ categoryid: categoryid }, categorydata);
+
+    if(!result) {
+        res.json({ success: false, error: "category-not-found" });
+        return;
+    }
+
+    res.json({ success: true, data: categorydata });
+});
+
 module.exports = router;

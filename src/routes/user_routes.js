@@ -52,4 +52,18 @@ router.post("/login", async function(req, res) {
     res.json({ success: true, data: foundUser });
 });
 
+router.put("/", async function(req, res) {
+    const userdata = req.body;
+    const userid = userdata.userid;
+
+    const result = await UserModel.findOneAndUpdate({ userid: userid }, userdata);
+
+    if(!result) {
+        res.json({ success: false, error: "user-not-found" });
+        return;
+    }
+
+    res.json({ success: true, data: userdata });
+});
+
 module.exports = router;

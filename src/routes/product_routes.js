@@ -37,4 +37,18 @@ router.delete("/", async function(req, res) {
     res.json({ success: true, data: result });
 });
 
+router.put("/", async function(req, res) {
+    const productdata = req.body;
+    const productid = productdata.productid;
+
+    const result = await ProductModel.findOneAndUpdate({ productid: productid }, productdata);
+
+    if(!result) {
+        res.json({ success: false, error: "product-not-found" });
+        return;
+    }
+
+    res.json({ success: true, data: productdata });
+});
+
 module.exports = router;
