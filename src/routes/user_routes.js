@@ -1,6 +1,8 @@
 const router = require('express').Router();
 const UserModel = require('./../models/user_model');
 const bcrypt = require('bcrypt');
+const CartModel = require('./../models/cart_model');
+const CartItemModel = require('./../models/cart_item_model');
 
 router.get("/:userid", async function(req, res) {
     const userid = req.params.userid;
@@ -11,6 +13,22 @@ router.get("/:userid", async function(req, res) {
     }
 
     res.json({ success: true, data: foundUser });
+});
+
+router.get("/:userid/viewcart", async function(req, res) {
+    const userid = req.params.userid;
+    const foundCart = await CartModel.findOne({ userid: userid }).populate({
+        path: "items",
+        populate: {
+            path: "product style"
+        }
+    });
+    if(!foundCart) {
+        res.json({ success: false, error: "cart-not-found" });
+        return;
+    }
+
+    res.json({ success: true, data: foundCart });
 });
 
 router.post("/createaccount", async function(req, res) {
@@ -64,6 +82,51 @@ router.put("/", async function(req, res) {
     }
 
     res.json({ success: true, data: userdata });
+});
+
+router.post("/:userid/addtocart", async function(req, res) {
+    const userid = req.params.userid;
+    const cartItemDetails = req.body;
+    const userCart = await CartModel.findOne({ userid: userid });
+
+    if(!userCart) {
+        const newCartModel = new CartModel({ userid: userid, items: [] });
+        await newCartModel.save(function(err) {
+            if(err) {
+                res.json({ success: false, error: err });
+                return;
+            }
+        });
+
+        cartItemDetails.cartid = newCartModel.cartid;
+    }
+    else {
+        cartItemDetails.cartid = userCart.cartid;
+    }
+
+    const newCartItem = new CartItemModel(cartItemDetails);
+    await newCartItem.save(async function(err) {
+        if(err) {
+            res.json({ success: false, error: err });
+            return;
+        }
+
+        await CartModel.findOneAndUpdate({ cartid: newCartItem.cartid }, { $push: { items: newCartItem._id } });
+        res.json({ success: true, data: newCartItem });
+    });
+});
+
+router.delete("/:userid/removefromcart", async function(req, res) {
+    const userid = req.params.userid;
+    const cartItemDetails = req.body;
+
+    const updatedCart = await CartModel.findOneAndUpdate({ userid: userid }, { $pull: { items: cartItemDetails.itemid } });
+    if(!updatedCart) {
+        res.json({ success: false, error: 'cart-not-exists' });
+        return;
+    }
+
+    res.json({ success: true, data: cartItemDetails });
 });
 
 module.exports = router;
