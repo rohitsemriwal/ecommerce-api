@@ -3,8 +3,10 @@ const UserModel = require('./../models/user_model');
 const bcrypt = require('bcrypt');
 const CartModel = require('./../models/cart_model');
 const CartItemModel = require('./../models/cart_item_model');
+const jsonwebtoken = require('jsonwebtoken');
+const jwt = require('./../middlewares/jwt');
 
-router.get("/:userid", async function(req, res) {
+router.get("/:userid", jwt, async function(req, res) {
     const userid = req.params.userid;
     const foundUser = await UserModel.findOne({ userid: userid });
     if(!foundUser) {
@@ -15,7 +17,7 @@ router.get("/:userid", async function(req, res) {
     res.json({ success: true, data: foundUser });
 });
 
-router.get("/:userid/viewcart", async function(req, res) {
+router.get("/:userid/viewcart", jwt, async function(req, res) {
     const userid = req.params.userid;
     const foundCart = await CartModel.findOne({ userid: userid }).populate({
         path: "items",
@@ -39,6 +41,10 @@ router.post("/createaccount", async function(req, res) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     userData.password = hashedPassword;
+
+    // Create the JWT Token
+    const token = await jsonwebtoken.sign({ userid: userData.userid }, "thisismysecretkey");
+    userData.token = token;
 
     const newUser = new UserModel(userData);
     await newUser.save(function(err) {

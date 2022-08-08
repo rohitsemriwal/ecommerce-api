@@ -25,6 +25,9 @@ mongoose.connect("mongodb+srv://rohitsemriwal:rr1234@cluster0.fnizk.mongodb.net/
     const fileRoutes = require('./routes/file_routes');
     app.use("/api/file", fileRoutes);
 
+    const orderRoutes = require('./routes/order_routes');
+    app.use("/api/order", orderRoutes);
+
 });
 
 const PORT = 5000;

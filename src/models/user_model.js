@@ -11,6 +11,8 @@ const userSchema = new Schema({
     country: { type: String, default: "" },
     city: { type: String, default: "" },
     pincode: { type: String, default: "" },
+
+    token: { type: String, default: "" },
     
     addedon: { type: Date, default: Date.now }
 });
